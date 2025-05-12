@@ -8,6 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import com.craftinginterpreters.console.ConsoleColors;
+import com.craftinginterpreters.tmp.MyASTPrinter;
+import com.craftinginterpreters.tmp.MyExpr;
+import com.craftinginterpreters.tmp.MyParser;
 
 public class Lox {
   static boolean hadError = false;
@@ -46,12 +49,17 @@ public class Lox {
 
   private static void run(String source) {
     Scanner scanner = new Scanner(source);
-    List<Token> tokens = scanner.scanTokens(); 
-    
-    for (Token token : tokens) {
-      System.out.println(token);
-    }
-    // TokenTablePrinter.print(tokens);
+    List<Token> tokens = scanner.scanTokens();
+    Parser parser = new Parser(tokens);
+    Expr expression = parser.parse();
+    // MyParser parser = new MyParser(tokens);
+    // MyExpr expression = parser.parse();
+    if (hadError)
+      return;
+
+    System.out.println(new AstPrinter().print(expression));
+    // System.out.println(new MyASTPrinter().print(expression));
+
   }
 
   static void error(int line, String message) {
@@ -61,5 +69,13 @@ public class Lox {
   private static void report(int line, String where, String message) {
     System.err.println(ConsoleColors.RED + "[line " + line + "] Error" + where + ": " + message + ConsoleColors.RESET);
     hadError = true;
+  }
+
+  static void error(Token token, String message) {
+    if (token.type == TokenType.EOF) {
+      report(token.line, " at end", message);
+    } else {
+      report(token.line, " at '" + token.lexeme + "'", message);
+    }
   }
 }

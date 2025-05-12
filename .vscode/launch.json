@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "RpnPrinter",
+      "request": "launch",
+      "mainClass": "com.craftinginterpreters.lox.RpnPrinter",
+      "projectName": "craftinginterpreters_44636206"
+    },
+    {
+      "type": "java",
       "name": "MyClass",
       "request": "launch",
       "mainClass": "com.craftinginterpreters.tmp.MyClass",
