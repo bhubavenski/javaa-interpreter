@@ -1,5 +1,8 @@
 package com.craftinginterpreters.lox;
 
+import com.craftinginterpreters.lox.Expr.Comma;
+import com.craftinginterpreters.lox.Expr.Ternary;
+
 class AstPrinter implements Expr.Visitor<String> {
     String print(Expr expr) {
         return expr.accept(this);
@@ -26,6 +29,17 @@ class AstPrinter implements Expr.Visitor<String> {
     @Override
     public String visitUnaryExpr(Expr.Unary expr) {
         return parenthesize(expr.operator.lexeme, expr.right);
+    }
+
+    @Override
+    public String visitCommaExpr(Comma expr) {
+        return parenthesize("comma", expr.left, expr.right);
+    }
+
+    @Override
+    public String visitTernaryExpr(Ternary expr) {
+        return parenthesize("ternary", expr.expression, expr.true_expression, expr.false_expression);
+
     }
 
     private String parenthesize(String name, Expr... exprs) {

@@ -1,5 +1,6 @@
-package com.craftinginterpreters.lox;
+package com.craftinginterpreters.tmp;
 
+import com.craftinginterpreters.lox.Expr;
 import com.craftinginterpreters.lox.Expr.*;
 
 public class RpnPrinter implements Visitor<String> {

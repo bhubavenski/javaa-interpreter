@@ -8,9 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import com.craftinginterpreters.console.ConsoleColors;
-import com.craftinginterpreters.tmp.MyASTPrinter;
-import com.craftinginterpreters.tmp.MyExpr;
-import com.craftinginterpreters.tmp.MyParser;
 
 public class Lox {
   static boolean hadError = false;

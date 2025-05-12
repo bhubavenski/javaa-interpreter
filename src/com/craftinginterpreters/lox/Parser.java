@@ -2,10 +2,14 @@ package com.craftinginterpreters.lox;
 
 import java.util.List;
 
+import com.craftinginterpreters.lox.Expr.Comma;
+
 import static com.craftinginterpreters.lox.TokenType.*;
 
 public class Parser {
-  private static class ParseError extends RuntimeException {}
+  private static class ParseError extends RuntimeException {
+  }
+
   private final List<Token> tokens;
   private int current = 0;
 
@@ -22,7 +26,42 @@ public class Parser {
   }
 
   private Expr expression() {
-    return equality();
+    return comma();
+  }
+
+  private Expr comma() {
+    Expr expr = assigment();
+
+    while (match(COMMA)) {
+      Expr right = assigment();
+      expr = new Comma(expr, right);
+    }
+
+    return expr;
+  }
+
+  private Expr assigment() {
+    Expr expr = ternary();
+
+    while (match(EQUAL)) {
+      Expr right = ternary();
+      expr = new Expr.Binary(expr, peek(), right);
+    }
+
+    return expr;
+  }
+
+  private Expr ternary() {
+    Expr expr = equality();
+    if (match(QUESTION_MARK)) {
+      
+      Expr true_expression = expression();
+      consume(COLON, "missing ':' in ternary expression ");
+      Expr false_expression = ternary();
+
+      expr = new Expr.Ternary(expr, true_expression, false_expression);
+    }
+    return expr;
   }
 
   private Expr equality() {
@@ -155,7 +194,8 @@ public class Parser {
     advance();
 
     while (!isAtEnd()) {
-      if (previous().type == SEMICOLON) return;
+      if (previous().type == SEMICOLON)
+        return;
 
       switch (peek().type) {
         case CLASS:

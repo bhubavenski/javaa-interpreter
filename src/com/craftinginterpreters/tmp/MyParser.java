@@ -4,13 +4,10 @@ import java.util.List;
 
 import com.craftinginterpreters.lox.Lox;
 import com.craftinginterpreters.lox.Token;
-import com.craftinginterpreters.lox.TokenType;
 import com.craftinginterpreters.tmp.MyExpr.Binary;
 import com.craftinginterpreters.tmp.MyExpr.Grouping;
 import com.craftinginterpreters.tmp.MyExpr.Literal;
 import com.craftinginterpreters.tmp.MyExpr.Unary;
-
-import static com.craftinginterpreters.lox.TokenType.*;
 
 public class MyParser {
     private static class ParseError extends RuntimeException {

@@ -88,6 +88,12 @@ class Scanner {
             case '=':
                 addToken(match('=') ? EQUAL_EQUAL : EQUAL);
                 break;
+            case '?':
+                addToken(QUESTION_MARK);
+                break;
+            case ':':
+                addToken(COLON);
+                break;
             case '<':
                 addToken(match('=') ? LESS_EQUAL : LESS);
                 break;
