@@ -10,9 +10,9 @@ abstract class Expr {
 
     R visitUnaryExpr(Unary expr);
 
-    R visitCommaExpr(Comma expr);
+    // R visitCommaExpr(Comma expr);
 
-    R visitTernaryExpr(Ternary expr);
+    // R visitTernaryExpr(Ternary expr);
 
   }
 
@@ -74,39 +74,42 @@ abstract class Expr {
     final Expr right;
   }
 
-  static class Comma extends Expr {
-
-    public Comma(Expr left, Expr right) {
-      this.left = left;
-      this.right = right;
-    }
-
-    @Override
-    <R> R accept(Visitor<R> visitor) {
-      return visitor.visitCommaExpr(this);
-    }
-
-    final Expr left;
-    final Expr right;
-  }
-
-  static class Ternary extends Expr {
-
-    public Ternary(Expr expression, Expr true_expression, Expr false_expression) {
-      this.expression = expression;
-      this.true_expression = true_expression;
-      this.false_expression = false_expression;
-    }
-
-    @Override
-    <R> R accept(Visitor<R> visitor) {
-      return visitor.visitTernaryExpr(this);
-    }
-
-    final Expr expression;
-    final Expr true_expression;
-    final Expr false_expression;
-  }
+  /* Comma, Ternary expressions
+   * static class Comma extends Expr {
+   * 
+   * public Comma(Expr left, Expr right) {
+   * this.left = left;
+   * this.right = right;
+   * }
+   * 
+   * @Override
+   * <R> R accept(Visitor<R> visitor) {
+   * return visitor.visitCommaExpr(this);
+   * }
+   * 
+   * final Expr left;
+   * final Expr right;
+   * }
+   * 
+   * static class Ternary extends Expr {
+   * 
+   * public Ternary(Expr expression, Expr true_expression, Expr false_expression)
+   * {
+   * this.expression = expression;
+   * this.true_expression = true_expression;
+   * this.false_expression = false_expression;
+   * }
+   * 
+   * @Override
+   * <R> R accept(Visitor<R> visitor) {
+   * return visitor.visitTernaryExpr(this);
+   * }
+   * 
+   * final Expr expression;
+   * final Expr true_expression;
+   * final Expr false_expression;
+   * }
+   */
 
   abstract <R> R accept(Visitor<R> visitor);
 }

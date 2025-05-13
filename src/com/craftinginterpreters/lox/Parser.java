@@ -2,8 +2,6 @@ package com.craftinginterpreters.lox;
 
 import java.util.List;
 
-import com.craftinginterpreters.lox.Expr.Comma;
-
 import static com.craftinginterpreters.lox.TokenType.*;
 
 public class Parser {
@@ -26,44 +24,47 @@ public class Parser {
   }
 
   private Expr expression() {
-    return comma();
+    // return comma();
+    return equality();
   }
 
-  private Expr comma() {
-    Expr expr = assigment();
-
-    while (match(COMMA)) {
-      Expr right = assigment();
-      expr = new Comma(expr, right);
-    }
-
-    return expr;
-  }
-
-  private Expr assigment() {
-    Expr expr = ternary();
-
-    while (match(EQUAL)) {
-      Expr right = ternary();
-      expr = new Expr.Binary(expr, peek(), right);
-    }
-
-    return expr;
-  }
-
-  private Expr ternary() {
-    Expr expr = equality();
-    if (match(QUESTION_MARK)) {
-      
-      Expr true_expression = expression();
-      consume(COLON, "missing ':' in ternary expression ");
-      Expr false_expression = ternary();
-
-      expr = new Expr.Ternary(expr, true_expression, false_expression);
-    }
-    return expr;
-  }
-
+  /*
+   * Comma, Ternary and Assigment logic
+   * private Expr comma() {
+   * Expr expr = assigment();
+   * 
+   * while (match(COMMA)) {
+   * Expr right = assigment();
+   * expr = new Comma(expr, right);
+   * }
+   * 
+   * return expr;
+   * }
+   * 
+   * private Expr assigment() {
+   * Expr expr = ternary();
+   * 
+   * while (match(EQUAL)) {
+   * Expr right = ternary();
+   * expr = new Expr.Binary(expr, peek(), right);
+   * }
+   * 
+   * return expr;
+   * }
+   * 
+   * private Expr ternary() {
+   * Expr expr = equality();
+   * if (match(QUESTION_MARK)) {
+   * 
+   * Expr true_expression = expression();
+   * consume(COLON, "missing ':' in ternary expression ");
+   * Expr false_expression = ternary();
+   * 
+   * expr = new Expr.Ternary(expr, true_expression, false_expression);
+   * }
+   * return expr;
+   * }
+   */
   private Expr equality() {
     Expr expr = comparison();
 
@@ -207,6 +208,8 @@ public class Parser {
         case PRINT:
         case RETURN:
           return;
+        default:
+          break;
       }
 
       advance();
