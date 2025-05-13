@@ -1,28 +1,31 @@
-package com.craftinginterpreters.lox;
+package com.craftinginterpreters.tmp;
 
-import java.util.List;
+import com.craftinginterpreters.lox.Expr;
+import com.craftinginterpreters.lox.Lox;
+import com.craftinginterpreters.lox.RuntimeError;
+import com.craftinginterpreters.lox.Token;
+import com.craftinginterpreters.lox.Expr.Binary;
+import com.craftinginterpreters.lox.Expr.Grouping;
+import com.craftinginterpreters.lox.Expr.Literal;
+import com.craftinginterpreters.lox.Expr.Unary;
+import com.craftinginterpreters.lox.Expr.Visitor;
 
-import com.craftinginterpreters.lox.Expr.*;
-import com.craftinginterpreters.lox.Stmt.Expression;
-import com.craftinginterpreters.lox.Stmt.Print;
+public class MyInterpreter implements Visitor<Object> {
 
-public class Interpreter implements Expr.Visitor<Object>,
-        Stmt.Visitor<Void> {
-    void interpret(List<Stmt> statements) {
+    public void interprate(Expr expr) {
         try {
-            for (Stmt statement : statements) {
-                execute(statement);
-            }
+            Object value = evaluate(expr);
+            System.out.println(stringify(value));
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
+
     }
 
     @Override
-    public Object visitBinaryExpr(Expr.Binary expr) {
+    public Object visitBinaryExpr(Binary expr) {
         Object left = evaluate(expr.left);
         Object right = evaluate(expr.right);
-
         switch (expr.operator.type) {
             case BANG_EQUAL:
                 return !isEqual(left, right);
@@ -30,14 +33,6 @@ public class Interpreter implements Expr.Visitor<Object>,
                 return isEqual(left, right);
             case GREATER:
                 checkNumberOperands(expr.operator, left, right);
-                // if ((left instanceof Double && right instanceof String)
-                // || (right instanceof Double && left instanceof String)) {
-                // Double number = left instanceof Double ? (Double) left : (Double) right;
-                // String text = left instanceof String ? (String) left : (String) right;
-                // char c = text.charAt(0);
-                // return number > (double) c;
-                // }
-
                 return (double) left > (double) right;
             case GREATER_EQUAL:
                 checkNumberOperands(expr.operator, left, right);
@@ -84,7 +79,7 @@ public class Interpreter implements Expr.Visitor<Object>,
     }
 
     @Override
-    public Object visitLiteralExpr(Expr.Literal expr) {
+    public Object visitLiteralExpr(Literal expr) {
         return expr.value;
     }
 
@@ -93,27 +88,17 @@ public class Interpreter implements Expr.Visitor<Object>,
         Object right = evaluate(expr.right);
         switch (expr.operator.type) {
             case MINUS:
-                checkNumberOperand(expr.operator, right);
                 return -(double) right;
             case BANG:
                 return !isTruthy(right);
             default:
                 return null;
         }
+
     }
 
-    private void checkNumberOperand(Token operator, Object operand) {
-        if (operand instanceof Double)
-            return;
-        throw new RuntimeError(operator, "Operand must be a number.");
-    }
-
-    private void checkNumberOperands(Token operator,
-            Object left, Object right) {
-        if (left instanceof Double && right instanceof Double)
-            return;
-
-        throw new RuntimeError(operator, "Operands must be numbers.");
+    private Object evaluate(Expr expr) {
+        return expr.accept(this);
     }
 
     private Boolean isTruthy(Object object) {
@@ -124,13 +109,14 @@ public class Interpreter implements Expr.Visitor<Object>,
         return true;
     }
 
-    private boolean isEqual(Object a, Object b) {
-        if (a == null && b == null)
+    private Boolean isEqual(Object left, Object right) {
+        if (left == null && right == null) {
             return true;
-        if (a == null)
+        }
+        if (left == null) {
             return false;
-
-        return a.equals(b);
+        }
+        return left.equals(right);
     }
 
     private String stringify(Object object) {
@@ -148,37 +134,11 @@ public class Interpreter implements Expr.Visitor<Object>,
         return object.toString();
     }
 
-    private Object evaluate(Expr expr) {
-        return expr.accept(this);
+    private void checkNumberOperands(Token operator,
+            Object left, Object right) {
+        if (left instanceof Double && right instanceof Double)
+            return;
+
+        throw new RuntimeError(operator, "Operands must be numbers.");
     }
-
-    private void execute(Stmt stmt) {
-        stmt.accept(this);
-    }
-
-    @Override
-    public Void visitExpressionStmt(Stmt.Expression stmt) {
-        evaluate(stmt.expression);
-        return null;
-    }
-
-    @Override
-    public Void visitPrintStmt(Stmt.Print stmt) {
-        Object value = evaluate(stmt.expression);
-        System.out.println(stringify(value));
-        return null;
-    }
-
-    // @Override
-    // public Object visitCommaExpr(Comma expr) {
-    // throw new UnsupportedOperationException("Unimplemented method
-    // 'visitCommaExpr'");
-    // }
-
-    // @Override
-    // public Object visitTernaryExpr(Ternary expr) {
-    // throw new UnsupportedOperationException("Unimplemented method
-    // 'visitTernaryExpr'");
-    // }
-
 }
