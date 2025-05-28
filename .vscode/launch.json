@@ -6,6 +6,27 @@
   "configurations": [
     {
       "type": "java",
+      "name": "MyGenerateAst",
+      "request": "launch",
+      "mainClass": "com.craftinginterpreters.tool.MyGenerateAst",
+      "projectName": "javaa-interpreter_17fd3ec7"
+    },
+    {
+      "type": "java",
+      "name": "Lox",
+      "request": "launch",
+      "mainClass": "com.craftinginterpreters.lox.Lox",
+      "projectName": "javaa-interpreter_17fd3ec7"
+    },
+    {
+      "type": "java",
+      "name": "MyLox",
+      "request": "launch",
+      "mainClass": "com.craftinginterpreters.tmp.MyLox",
+      "projectName": "javaa-interpreter_17fd3ec7"
+    },
+    {
+      "type": "java",
       "name": "RpnPrinter",
       "request": "launch",
       "mainClass": "com.craftinginterpreters.lox.RpnPrinter",
