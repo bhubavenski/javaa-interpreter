@@ -35,6 +35,9 @@ public class MyParser {
             if (match(VAR)) {
                 return varDeclaration();
             }
+            if (match(FUN)) {
+                return function("function");
+            }
             return statement();
 
         } catch (ParseError e) {
@@ -59,6 +62,8 @@ public class MyParser {
     private MyStmt statement() {
         if (match(PRINT)) {
             return printStatement();
+        } else if (match(RETURN)) {
+            return returnStatement();
         } else if (match(LEFT_BRACE)) {
             return new MyStmt.Block(block());
         } else if (match(IF)) {
@@ -163,10 +168,42 @@ public class MyParser {
         return new MyStmt.Print(expr);
     }
 
+    private MyStmt returnStatement() {
+        MyExpr expr = null;
+        MyToken keyword = previous();
+        
+        if (!check(SEMICOLON)) {
+            expr = expression();
+        }
+
+        consume(SEMICOLON, "Expected ';' after return.");
+
+        return new MyStmt.Return(keyword, expr);
+    }
+
     private MyStmt expressionStatement() {
         MyExpr expr = expression();
         consume(SEMICOLON, "Expected ';' after expr");
         return new MyStmt.MyExpression(expr);
+    }
+
+    private MyStmt.Function function(String kind) {
+        MyToken name = consume(IDENTIFIER, "Expect " + kind + "name .");
+        consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+        List<MyToken> params = new ArrayList<>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (params.size() >= 255) {
+                    error(peek(), "Can't have more than 255 parameters");
+                }
+                params.add(consume(IDENTIFIER, "Expect parametar name"));
+            } while (match(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters");
+
+        consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        List<MyStmt> body = block();
+        return new MyStmt.Function(name, params, body);
     }
 
     private MyExpr expression() {
@@ -259,7 +296,38 @@ public class MyParser {
             return new MyExpr.Unary(operator, right);
         }
 
-        return primary();
+        return call();
+    }
+
+    private MyExpr call() {
+        MyExpr expr = primary();
+
+        while (true) {
+            if (match(LEFT_PAREN)) {
+                expr = finishCall(expr);
+            } else {
+                break;
+            }
+        }
+
+        return expr;
+    }
+
+    private MyExpr finishCall(MyExpr callee) {
+        List<MyExpr> args = new ArrayList<>();
+
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (args.size() >= 255) {
+                    error(peek(), "Can't have more than 255 arguments");
+                }
+                args.add(expression());
+            } while (match(COMMA));
+        }
+
+        MyToken paren = consume(RIGHT_PAREN, "Expect '(' after arguments.");
+
+        return new MyExpr.Call(callee, paren, args);
     }
 
     private MyExpr primary() {
@@ -359,3 +427,5 @@ public class MyParser {
         return MyTokens.get(current - 1);
     }
 }
+
+// extention za kato skrolna dogore s kursora, da me sloji nai-dolu

@@ -1,24 +1,52 @@
 package com.craftinginterpreters.tmp;
 
-import static com.craftinginterpreters.tmp.MyExpr.*;
 import static com.craftinginterpreters.tmp.MyTokenType.OR;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.craftinginterpreters.lox.Environment;
 import com.craftinginterpreters.tmp.MyExpr.Assign;
+import com.craftinginterpreters.tmp.MyExpr.Binary;
+import com.craftinginterpreters.tmp.MyExpr.Call;
+import com.craftinginterpreters.tmp.MyExpr.Grouping;
+import com.craftinginterpreters.tmp.MyExpr.Literal;
 import com.craftinginterpreters.tmp.MyExpr.Logical;
+import com.craftinginterpreters.tmp.MyExpr.MyVisitor;
+import com.craftinginterpreters.tmp.MyExpr.Unary;
 import com.craftinginterpreters.tmp.MyExpr.Variable;
 import com.craftinginterpreters.tmp.MyStmt.Block;
 import com.craftinginterpreters.tmp.MyStmt.Break;
+import com.craftinginterpreters.tmp.MyStmt.Function;
 import com.craftinginterpreters.tmp.MyStmt.If;
 import com.craftinginterpreters.tmp.MyStmt.MyExpression;
 import com.craftinginterpreters.tmp.MyStmt.Print;
+import com.craftinginterpreters.tmp.MyStmt.Return;
 import com.craftinginterpreters.tmp.MyStmt.Var;
 import com.craftinginterpreters.tmp.MyStmt.While;
 
 public class MyInterpreter implements MyVisitor<Object>, MyStmt.MyVisitor<Void> {
-    private MyEnv env = new MyEnv();
+    // private MyEnv env = new MyEnv();
+    final MyEnv globals = new MyEnv();
+    private MyEnv env = globals;
+
+    MyInterpreter() {
+        globals.define("clock", new MyLoxCallable() {
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(MyInterpreter interpreter, List<Object> args) {
+                return (double) System.currentTimeMillis() / 1000.0;
+            }
+
+            @Override
+            public String toString() {
+                return "<native fn>";
+            }
+        });
+    }
 
     public void interprate(List<MyStmt> stmts) {
         try {
@@ -198,6 +226,34 @@ public class MyInterpreter implements MyVisitor<Object>, MyStmt.MyVisitor<Void> 
         return null;
     }
 
+    @Override
+    public Void visitBreakMyStmt(Break stmt) {
+        throw new BreakError(stmt.token);
+    }
+
+    @Override
+    public Object visitCallMyExpr(Call myexpr) {
+        Object callee = evaluate(myexpr.callee);
+        List<Object> args = new ArrayList<>();
+
+        for (MyExpr arg : myexpr.arguments) {
+            args.add(evaluate(arg));
+        }
+
+        if (!(callee instanceof MyLoxCallable)) {
+            throw new MyRuntimeError(myexpr.paren, "Can only call functions and classes.");
+        }
+
+        MyLoxCallable function = (MyLoxCallable) callee;
+
+        if (args.size() != function.arity()) {
+            throw new MyRuntimeError(myexpr.paren,
+                    "Expected " + function.arity() + " arguments but got " + args.size() + ".");
+        }
+
+        return function.call(this, args);
+    }
+
     // private
     public Object evaluate(MyExpr expr) {
         return expr.accept(this);
@@ -249,7 +305,7 @@ public class MyInterpreter implements MyVisitor<Object>, MyStmt.MyVisitor<Void> 
         throw new MyRuntimeError(operator, "Operands must be numbers.");
     }
 
-    private void executeBlock(List<MyStmt> stmts, MyEnv newEnv) {
+    public void executeBlock(List<MyStmt> stmts, MyEnv newEnv) {
         MyEnv prevEnv = env;
         try {
             env = newEnv;
@@ -263,8 +319,20 @@ public class MyInterpreter implements MyVisitor<Object>, MyStmt.MyVisitor<Void> 
     }
 
     @Override
-    public Void visitBreakMyStmt(Break stmt) {
-        throw new BreakError(stmt.token);
+    public Void visitFunctionMyStmt(Function mystmt) {
+        MyLoxFunction func = new MyLoxFunction(mystmt, env);
+        env.define(mystmt.name.lexeme, func);
+        return null;
+    }
+
+    @Override
+    public Void visitReturnMyStmt(Return mystmt) {
+        Object value = null;
+
+        if (mystmt.value != null)
+            value = evaluate(mystmt.value);
+        
+        throw new MyReturn(value);
     }
 
 }

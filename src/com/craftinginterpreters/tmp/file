@@ -1,10 +1,13 @@
-var a = 1;
-while( a < 5) {
-    while(a<5) {
-        break;
-        print "-";
+fun makeCounter() {
+    var i = 0;
+    fun count() {
+        i = i + 1;
+        print i;
+        return i;
     }
-
-    print a;
-    a = a + 1;
+    return count;
 }
+
+var counter = makeCounter();
+counter();
+counter();

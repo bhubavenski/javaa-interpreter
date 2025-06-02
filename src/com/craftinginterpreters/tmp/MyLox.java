@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import com.craftinginterpreters.console.ConsoleColors;
-import com.craftinginterpreters.tmp.MyStmt.MyExpression;
 
 public class MyLox {
   private static final MyInterpreter interpreter = new MyInterpreter();

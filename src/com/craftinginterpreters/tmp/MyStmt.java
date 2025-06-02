@@ -5,7 +5,9 @@ import java.util.List;
 abstract class MyStmt {
   interface MyVisitor<R> {
     R visitMyExpressionMyStmt(MyExpression mystmt);
+    R visitFunctionMyStmt(Function mystmt);
     R visitPrintMyStmt(Print mystmt);
+    R visitReturnMyStmt(Return mystmt);
     R visitVarMyStmt(Var mystmt);
     R visitBlockMyStmt(Block mystmt);
     R visitIfMyStmt(If mystmt);
@@ -23,6 +25,21 @@ abstract class MyStmt {
 
     final MyExpr expression;
   }
+  static class Function extends MyStmt {
+    Function(MyToken name, List<MyToken> params, List<MyStmt> body) {
+      this.name = name;
+      this.params = params;
+      this.body = body;
+    }
+    @Override
+    <R> R accept(MyVisitor<R> visitor) {
+      return visitor.visitFunctionMyStmt(this);
+    }
+
+    final MyToken name;
+    final List<MyToken> params;
+    final List<MyStmt> body;
+  }
   static class Print extends MyStmt {
     Print(MyExpr expression) {
       this.expression = expression;
@@ -33,6 +50,19 @@ abstract class MyStmt {
     }
 
     final MyExpr expression;
+  }
+  static class Return extends MyStmt {
+    Return(MyToken keyword, MyExpr value) {
+      this.keyword = keyword;
+      this.value = value;
+    }
+    @Override
+    <R> R accept(MyVisitor<R> visitor) {
+      return visitor.visitReturnMyStmt(this);
+    }
+
+    final MyToken keyword;
+    final MyExpr value;
   }
   static class Var extends MyStmt {
     Var(MyToken name, MyExpr expression) {

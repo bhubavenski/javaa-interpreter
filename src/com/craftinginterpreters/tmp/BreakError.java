@@ -5,5 +5,6 @@ public class BreakError extends RuntimeException {
 
     BreakError(MyToken token) {
         this.token = token;
+        
     }
 }

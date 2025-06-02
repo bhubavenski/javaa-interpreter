@@ -16,16 +16,18 @@ public class MyGenerateAst {
 
         defineAst(outputDir, "MyExpr", Arrays.asList(
                 "Binary   : MyExpr left, MyToken operator, MyExpr right",
+                "Call: MyExpr callee, MyToken paren, List<MyExpr> arguments",
                 "Grouping : MyExpr expression",
                 "Literal  : Object value",
                 "Logical: MyExpr left, MyToken operator, MyExpr right",
                 "Unary    : MyToken operator, MyExpr right",
                 "Variable: MyToken name",
-                "Assign: MyToken name, MyExpr expression"
-                ));
+                "Assign: MyToken name, MyExpr expression"));
         defineAst(outputDir, "MyStmt", Arrays.asList(
                 "MyExpression: MyExpr expression",
+                "Function: MyToken name, List<MyToken> params, List<MyStmt> body",
                 "Print : MyExpr expression",
+                "Return: MyToken keyword, MyExpr value",
                 "Var : MyToken name, MyExpr expression",
                 "Block: List<MyStmt> statements",
                 "If : MyExpr condition, MyStmt thenStatement, MyStmt elseBranch",

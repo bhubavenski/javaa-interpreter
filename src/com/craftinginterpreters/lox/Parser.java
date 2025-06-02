@@ -32,7 +32,6 @@ public class Parser {
         return function("function");
       if (match(VAR))
         return varDeclaration();
-
       return statement();
     } catch (ParseError error) {
       synchronize();
