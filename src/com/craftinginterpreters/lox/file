@@ -1,12 +1,4 @@
-var sum = 0;
-
-for (var i = 1; i <= 10; i = i + 1) {
-    var half = i / 2;
-    var double = half * 2;
-
-    if (double == i) {
-        sum = sum + i;
-    }
+fun a() {
+  print "Hello!";
 }
-
-print(sum);
+a();
