@@ -1,4 +1,8 @@
-fun a() {
-  print "Hello!";
+let a = 1;
+
+function printA() {
+  console.log(a)
 }
-a();
+
+a = 2;
+printA();
