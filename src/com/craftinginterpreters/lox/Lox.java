@@ -16,12 +16,12 @@ public class Lox {
 
   public static void main(String[] args) throws IOException {
     // if (args.length > 1) {
-    //   System.out.println("Usage: jlox [script]");
-    //   System.exit(64);
+    // System.out.println("Usage: jlox [script]");
+    // System.exit(64);
     // } else if (args.length == 1) {
-      runFile("src\\com\\craftinginterpreters\\lox\\file");
+    runFile("src\\com\\craftinginterpreters\\lox\\file");
     // } else {
-      // runPrompt("src\\com\\craftinginterpreters\\lox\\file");
+    // runPrompt("src\\com\\craftinginterpreters\\lox\\file");
     // }
   }
 
@@ -58,6 +58,10 @@ public class Lox {
     if (hadError)
       return;
 
+    Resolver resolver = new Resolver(interpreter);
+    resolver.resolve();
+    if (hadError)
+      return;
     interpreter.interpret(statements);
     // System.out.println(new AstPrinter().print(expression));
     // System.out.println(new MyASTPrinter().print(expression));
