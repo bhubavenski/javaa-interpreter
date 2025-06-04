@@ -1,5 +1,6 @@
 package com.craftinginterpreters.lox;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +12,10 @@ import com.craftinginterpreters.lox.Stmt.Return;
 
 public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     Stack<HashMap<String, Boolean>> scopes = new Stack<>();
+    Stack<List<String>> indexesStack = new Stack<>();
     Interpreter interpreter;
     private FunctionType currentFunction = FunctionType.NONE;
+    private Boolean localError = true;
 
     private enum FunctionType {
         NONE,
@@ -23,19 +26,17 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         this.interpreter = interpreter;
     }
 
-    @Override
-    public Void visitBlockStmt(Block stmt) {
-        beginScope();
-        resolve(stmt.statements);
-        endScope();
-        return null;
+    public void go(List<Stmt> statements) {
+        resolve(statements);
+        if (localError) {
+            Lox.error(0, "You have not used any local variables!");
+        }
     }
 
-    public Void resolve(List<Stmt> statements) {
+    public void resolve(List<Stmt> statements) {
         for (Stmt stmt : statements) {
             resolve(stmt);
         }
-        return null;
     }
 
     private void resolve(Stmt stmt) {
@@ -62,10 +63,12 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     private void beginScope() {
         scopes.push(new HashMap<String, Boolean>());
+        indexesStack.push(new ArrayList<String>());
     }
 
     private void endScope() {
         scopes.pop();
+        indexesStack.pop();
     }
 
     private void declare(Token name) {
@@ -86,8 +89,14 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         if (scopes.isEmpty())
             return;
 
+        localError = false;
         Map<String, Boolean> scope = scopes.peek();
+        List<String> list = indexesStack.peek();
+
         scope.put(name.lexeme, true);
+        // scope.put(name.lexeme, true);
+        list.add(name.lexeme);
+
     }
 
     @Override
@@ -125,6 +134,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             resolve(stmt.initializer);
         }
         define(stmt.name);
+
         return null;
     }
 
@@ -200,7 +210,9 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private void resolveLocal(Expr expr, Token name) {
         for (int i = scopes.size() - 1; i >= 0; i--) {
             if (scopes.get(i).containsKey(name.lexeme)) {
-                interpreter.resolve(expr, scopes.size() - 1 - i);
+                int depth = scopes.size() - 1 - i;
+                int index = indexesStack.get(i).indexOf(name.lexeme);
+                interpreter.resolve(expr, depth, index);
                 return;
             }
         }
@@ -216,6 +228,14 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             resolve(stmt.value);
         }
 
+        return null;
+    }
+
+    @Override
+    public Void visitBlockStmt(Block stmt) {
+        beginScope();
+        resolve(stmt.statements);
+        endScope();
         return null;
     }
 

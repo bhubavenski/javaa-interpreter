@@ -1,0 +1,12 @@
+fun makeCounter() {
+  var count = 0;
+  fun increment() {
+    count = count + 1;
+    print count;
+  }
+  return increment;
+}
+
+var counter = makeCounter();
+counter(); // 1
+counter(); // 2

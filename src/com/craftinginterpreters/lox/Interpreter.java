@@ -13,6 +13,7 @@ public class Interpreter implements Expr.Visitor<Object>,
     final Environment globals = new Environment();
     private Environment environment = globals;
     private final Map<Expr, Integer> locals = new HashMap<>();
+    private final Map<Expr, Integer> localsIndex = new HashMap<>();
 
     Interpreter() {
         globals.define("clock", new LoxCallable() {
@@ -201,9 +202,9 @@ public class Interpreter implements Expr.Visitor<Object>,
 
     private Object lookUpVariable(Token name, Expr expr) {
         Integer distance = locals.get(expr);
-
+        Integer index = localsIndex.get(expr);
         if (distance != null) {
-            return environment.getAt(distance, name.lexeme);
+            return environment.getAt(distance, index);
         } else {
             return globals.get(name);
         }
@@ -215,11 +216,12 @@ public class Interpreter implements Expr.Visitor<Object>,
         Integer distance = locals.get(expr);
 
         if (distance != null) {
-            environment.assignAt(distance, expr.name, value);
+            Integer index = localsIndex.get(expr);
+            environment.assignAt(distance, index, value);
         } else {
             globals.assign(expr.name, value);
         }
-        
+
         return value;
     }
 
@@ -318,8 +320,9 @@ public class Interpreter implements Expr.Visitor<Object>,
         stmt.accept(this);
     }
 
-    void resolve(Expr expr, int depth) {
+    void resolve(Expr expr, int depth, int index) {
         locals.put(expr, depth);
+        localsIndex.put(expr, index);
     }
 
     void executeBlock(List<Stmt> statements,
