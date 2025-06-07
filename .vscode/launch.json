@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "GenerateAst",
+      "request": "launch",
+      "mainClass": "com.craftinginterpreters.tool.GenerateAst",
+      "projectName": "javaa-interpreter_17fd3ec7"
+    },
+    {
+      "type": "java",
       "name": "MyGenerateAst",
       "request": "launch",
       "mainClass": "com.craftinginterpreters.tool.MyGenerateAst",

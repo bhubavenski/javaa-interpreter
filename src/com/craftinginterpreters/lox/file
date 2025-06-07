@@ -1,0 +1,11 @@
+ { class Klas {
+   class square(n) {
+      print n * n;
+    }
+  }
+
+  var klas = Klas();
+  klas.name = "Sofia";
+  klas.serveOn();
+  }
+  

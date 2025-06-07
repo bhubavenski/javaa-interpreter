@@ -219,7 +219,7 @@ public class Interpreter implements Expr.Visitor<Object>,
         } else {
             globals.assign(expr.name, value);
         }
-        
+
         return value;
     }
 
@@ -250,7 +250,7 @@ public class Interpreter implements Expr.Visitor<Object>,
 
     @Override
     public Void visitFunctionStmt(Function stmt) {
-        LoxFunction function = new LoxFunction(stmt, environment);
+        LoxFunction function = new LoxFunction(stmt, environment, false);
         environment.define(stmt.name.lexeme, function);
         return null;
     }
@@ -262,6 +262,22 @@ public class Interpreter implements Expr.Visitor<Object>,
             value = evaluate(stmt.value);
 
         throw new Return(value);
+    }
+
+    @Override
+    public Void visitClassStmt(Stmt.Class stmt) {
+        environment.define(stmt.name.lexeme, null);
+        Map<String, LoxFunction> methods = new HashMap<>();
+
+        for (Function method : stmt.methods) {
+            LoxFunction function = new LoxFunction(method, environment, method.name.lexeme.equals("init"));
+            methods.put(method.name.lexeme, function);
+        }
+
+        LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
+        environment.assign(stmt.name, klass);
+
+        return null;
     }
 
     private void checkNumberOperand(Token operator, Object operand) {
@@ -334,6 +350,35 @@ public class Interpreter implements Expr.Visitor<Object>,
         } finally {
             this.environment = previous;
         }
+    }
+
+    @Override
+    public Object visitGetExpr(Get expr) {
+        Object obj = evaluate(expr.object);
+
+        if (obj instanceof LoxInstance) {
+            return ((LoxInstance) obj).get(expr.name);
+        }
+
+        throw new RuntimeError(expr.name, "Only instances have properties.");
+    }
+
+    @Override
+    public Object visitSetExpr(Set expr) {
+        Object object = evaluate(expr.object);
+
+        if (!(object instanceof LoxInstance)) {
+            throw new RuntimeError(expr.name, "Only instances have fields.");
+        }
+
+        Object value = evaluate(expr.value);
+        ((LoxInstance) object).set(expr.name, value);
+        return null;
+    }
+
+    @Override
+    public Object visitThisExpr(This expr) {
+        return lookUpVariable(expr.keyword, expr);
     }
 
     // @Override
