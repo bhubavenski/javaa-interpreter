@@ -1,6 +1,6 @@
 class A {
     method() {
-    print " is my name";
+    print this.name + " is my name";
   }
 }
 
@@ -10,7 +10,7 @@ class B < A {
   }
 
   test() {
-    print this.name;
+   super.method();
   }
 }
 
@@ -18,4 +18,4 @@ class C < B {}
 
 var c = C();
 c.name = "C";
-print c.name;
+c.test();
