@@ -1,8 +1,21 @@
-class Foo {
-  init() {
-    print this;
+class A {
+    method() {
+    print " is my name";
   }
 }
 
-var foo = Foo();
-print foo.init();
+class B < A {
+  method() {
+    print "B method";
+  }
+
+  test() {
+    print this.name;
+  }
+}
+
+class C < B {}
+
+var c = C();
+c.name = "C";
+print c.name;
