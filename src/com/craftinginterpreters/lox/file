@@ -1,8 +1,21 @@
-let a = 1;
-
-function printA() {
-  console.log(a)
+class A {
+    method() {
+    print this.name + " is my name";
+  }
 }
 
-a = 2;
-printA();
+class B < A {
+  method() {
+    print "B method";
+  }
+
+  test() {
+   super.method();
+  }
+}
+
+class C < B {}
+
+var c = C();
+c.name = "C";
+c.test();

@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Environment {
     private final Map<String, Object> values = new HashMap<>();
-    private final Environment enclosing;
+    public final Environment enclosing;
 
     Environment() {
         enclosing = null;
@@ -29,6 +29,14 @@ public class Environment {
         values.put(name, value);
     }
 
+    Object getAt(int distance, String name) {
+        return ancestor(distance).values.get(name);
+    }
+
+    void assignAt(Integer distance, Token name, Object value) {
+        ancestor(distance).values.put(name.lexeme, value);
+    }
+
     Environment ancestor(int distance) {
         Environment environment = this;
         for (int i = 0; i < distance; i++) {
@@ -36,14 +44,6 @@ public class Environment {
         }
 
         return environment;
-    }
-
-    Object getAt(int distance, String name) {
-        return ancestor(distance).values.get(name);
-    }
-
-    void assignAt(int distance, Token name, Object value) {
-        ancestor(distance).values.put(name.lexeme, value);
     }
 
     void assign(Token name, Object value) {

@@ -55,17 +55,14 @@ public class Lox {
     List<Stmt> statements = parser.parse();
     // MyParser parser = new MyParser(tokens);
     // MyExpr expression = parser.parse();
-
     if (hadError)
       return;
 
     Resolver resolver = new Resolver(interpreter);
     resolver.resolve(statements);
-
     if (hadError)
       return;
-    
-      interpreter.interpret(statements);
+    interpreter.interpret(statements);
     // System.out.println(new AstPrinter().print(expression));
     // System.out.println(new MyASTPrinter().print(expression));
 

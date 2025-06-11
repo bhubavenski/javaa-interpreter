@@ -1,9 +1,6 @@
 package com.craftinginterpreters.tmp;
-
-import com.craftinginterpreters.lox.Expr;
-import com.craftinginterpreters.lox.Expr.*;
-
-public class RpnPrinter implements Visitor<String> {
+import com.craftinginterpreters.tmp.MyExpr.*;
+public class RpnPrinter implements MyVisitor<String> {
   @Override
   public String visitBinaryExpr(Binary expr) {
     return expr.left.accept(this) + " " + expr.right.accept(this) + expr.operator.lexeme;
@@ -24,7 +21,7 @@ public class RpnPrinter implements Visitor<String> {
     return expr.right.accept(this) + " " + expr.operator.lexeme;
   }
 
-  public String print(Expr expr) {
+  public String print(MyExpr expr) {
     return expr.accept(this);
   }
 
